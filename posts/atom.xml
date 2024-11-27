@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title> - Posts</title>
+    <link rel="self" type="application/atom+xml" href="https://msalah73.github.io/posts/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://msalah73.github.io/posts/"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2024-11-18T15:00:00+00:00</updated>
+    <id>https://msalah73.github.io/posts/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Cookiebox, a cookie management crate for the Actix Web framework</title>
+        <published>2024-11-18T15:00:00+00:00</published>
+        <updated>2024-11-18T15:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://msalah73.github.io/posts/cookiebox/"/>
+        <id>https://msalah73.github.io/posts/cookiebox/</id>
+        
+        <content type="html" xml:base="https://msalah73.github.io/posts/cookiebox/">&lt;h1 id=&quot;cookiebox&quot;&gt;Cookiebox&lt;a class=&quot;anchor&quot; aria-hidden=&quot;true&quot; href=&quot;#cookiebox&quot; hidden=&quot;&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MSalah73&#x2F;cookiebox&quot;&gt;Cookiebox&lt;&#x2F;a&gt; provides a type safe and flexible approach to managing cookies in Actix web applications with minimal boilerplate.
+Here is a list of what you will get from using this crate:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;This crate uses &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;LukeMathWalker&#x2F;biscotti&quot;&gt;biscotti&lt;&#x2F;a&gt; under the hood, which inherits most of its features.&lt;&#x2F;li&gt;
+&lt;li&gt;Offers the ability to configure settings on a per cookie basis.&lt;&#x2F;li&gt;
+&lt;li&gt;Enforces type definitions for deserializing cookie values upon retrieval.&lt;&#x2F;li&gt;
+&lt;li&gt;Allows customization of both the data type and data serialization.&lt;&#x2F;li&gt;
+&lt;li&gt;Provides a straightforward and type safe interface for managing cookies.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;This crate was inspired by Luca Palmieri&#x27;s SessionType from his latest book &lt;a href=&quot;https:&#x2F;&#x2F;www.zero2prod.com&quot;&gt;&lt;em&gt;Zero2Prod&lt;&#x2F;em&gt;&lt;&#x2F;a&gt;
+, his &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;LukeMathWalker&#x2F;biscotti&quot;&gt;Biscotti&lt;&#x2F;a&gt; cookie crate, and the &lt;a href=&quot;https:&#x2F;&#x2F;actix.rs&#x2F;actix-session&quot;&gt;Actix-session&lt;&#x2F;a&gt; crate.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Note&lt;&#x2F;strong&gt;: If you want to skip ahead, click &lt;a href=&quot;https:&#x2F;&#x2F;msalah73.github.io&#x2F;posts&#x2F;cookiebox&#x2F;#cookiebox-1&quot;&gt;here&lt;&#x2F;a&gt; to jump to the example code, or click
+&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MSalah73&#x2F;cookiebox&#x2F;tree&#x2F;master&#x2F;examples&quot;&gt;here&lt;&#x2F;a&gt; to view the GitHub example.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h1 id=&quot;why-cookiebox&quot;&gt;Why Cookiebox&lt;a class=&quot;anchor&quot; aria-hidden=&quot;true&quot; href=&quot;#why-cookiebox&quot; hidden=&quot;&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;I&#x27;m currently working on building a backend server that deals with a lot of cookies and have decided to use Biscotti to handle them.
+Biscotti is great, but it&#x27;s a lower level cookie crate. I needed something a bit more intuitive, a higher-level interface for cookie management.
+To address this, I decided to take a little segue and implement Cookiebox.&lt;&#x2F;p&gt;
+&lt;p&gt;In this article I’ll start by showing you how I initially handled cookies via Biscotti and how it inspired the creation of Cookiebox.
+Then I’ll walk you through an example of Cookiebox and how it simplifies cookie management.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;biscotti&quot;&gt;Biscotti&lt;a class=&quot;anchor&quot; aria-hidden=&quot;true&quot; href=&quot;#biscotti&quot; hidden=&quot;&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;Let’s start with the basic setup for Biscotti.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;biscotti::config::{CryptoRule, CryptoAlgorithm};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;biscotti::{Key, Processor, ProcessorConfig};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;actix_web::{App, HttpServer};
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;actix_web&lt;&#x2F;span&gt;&lt;span&gt;::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;main&lt;&#x2F;span&gt;&lt;span&gt;]
+&lt;&#x2F;span&gt;&lt;span&gt;async &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;main&lt;&#x2F;span&gt;&lt;span&gt;() -&amp;gt; std::io::Result&amp;lt;()&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Set up the processor for the middleware
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; cookie_config = ProcessorConfig::default();
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Set up the rules for encrypted cookies
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; crypto_rule = CryptoRule {
+&lt;&#x2F;span&gt;&lt;span&gt;        cookie_names: vec![&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;__cookie-a&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;to_string&lt;&#x2F;span&gt;&lt;span&gt;()],
+&lt;&#x2F;span&gt;&lt;span&gt;        algorithm: CryptoAlgorithm::Encryption,
+&lt;&#x2F;span&gt;&lt;span&gt;        key: Key::generate(),
+&lt;&#x2F;span&gt;&lt;span&gt;        fallbacks: vec![],
+&lt;&#x2F;span&gt;&lt;span&gt;    };
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    cookie_config.crypto_rules.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;push&lt;&#x2F;span&gt;&lt;span&gt;(crypto_rule);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; processor: Processor = cookie_config.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;into&lt;&#x2F;span&gt;&lt;span&gt;();
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    HttpServer::new(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;move &lt;&#x2F;span&gt;&lt;span&gt;|| {
+&lt;&#x2F;span&gt;&lt;span&gt;        App::new()
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;service&lt;&#x2F;span&gt;&lt;span&gt;(get_cookie)
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;service&lt;&#x2F;span&gt;&lt;span&gt;(add_cookie)
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;app_data&lt;&#x2F;span&gt;&lt;span&gt;(Data::new(processor.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;clone&lt;&#x2F;span&gt;&lt;span&gt;()))
+&lt;&#x2F;span&gt;&lt;span&gt;    })
+&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;bind&lt;&#x2F;span&gt;&lt;span&gt;((&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;127.0.0.1&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;8080&lt;&#x2F;span&gt;&lt;span&gt;))?
+&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;run&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;    .await
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The simplest and most straightforward way to use Biscotti is by including the HttpRequest as a parameter.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; A type to deserialize data into
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(Deserialize, Debug)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;Person {
+&lt;&#x2F;span&gt;&lt;span&gt;   &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;name&lt;&#x2F;span&gt;&lt;span&gt;: String
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;get_cookie&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;)]
+&lt;&#x2F;span&gt;&lt;span&gt;async &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;get_cookie&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;req&lt;&#x2F;span&gt;&lt;span&gt;: HttpRequest) -&amp;gt; HttpResponse {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Extract cookies from the cookie header
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; cookie_collection = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;process_header&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;req);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; cookie = cookie_collection
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Using string keys could cause issues here - You may want to leverage the type system to reduce the margin of errors.
+&lt;&#x2F;span&gt;&lt;span&gt;        .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;__cookie-a&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;)
+&lt;&#x2F;span&gt;&lt;span&gt;        .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;expect&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;requested cookie not found in cookie collection&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Deserialize cookie data and type cast it to Person
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; cookie_data: Person = serde_json::from_str(cookie.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;value&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;        .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;expect&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Failed to deserialize cookie value&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    HttpResponse::Ok().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;body&lt;&#x2F;span&gt;&lt;span&gt;(format!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Got - &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{:?}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, cookie_data))
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;add_cookie&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;)]
+&lt;&#x2F;span&gt;&lt;span&gt;async &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;add_cookie&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;req&lt;&#x2F;span&gt;&lt;span&gt;: HttpRequest) -&amp;gt; HttpResponse {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Initialize the cookie collection
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; cookies = ResponseCookies::new();
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Fetch the processor from app data
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; processor =
+&lt;&#x2F;span&gt;&lt;span&gt;        req.app_data::&amp;lt;web::Data&amp;lt;Processor&amp;gt;&amp;gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;expect&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Processor not found in app data&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Serialize data and insert it in cookie_a_add
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; data = json!({
+&lt;&#x2F;span&gt;&lt;span&gt;        &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;name&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;: &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Mark&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;,
+&lt;&#x2F;span&gt;&lt;span&gt;    });
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Define the cookie and sets the attributes for it.
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; cookie_a_add = ResponseCookie::new(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;__cookie-a&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, data.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;to_string&lt;&#x2F;span&gt;&lt;span&gt;()).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;set_path&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;&#x2F;&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;set_domain&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;127.0.0.1&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;);
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Create a removal cookie
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; cookie_a_remove = RemovalCookie::new(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;__cookie-a&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    cookies.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;insert&lt;&#x2F;span&gt;&lt;span&gt;(cookie_a_add);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; This does not remove &amp;#39;cookie_a_add&amp;#39; because biscotti treats `cookie_a_remove` differently.
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; It looks for a cookie named __cookie-a without the path or domain which is not the same as the one with path and domain
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Another area where it could cause issues if not handled correctly.
+&lt;&#x2F;span&gt;&lt;span&gt;    cookies.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;insert&lt;&#x2F;span&gt;&lt;span&gt;(cookie_a_remove);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Transform the cookies
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; cookie_header_value: Vec&amp;lt;String&amp;gt;= cookies.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;header_values&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;processor).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;collect&lt;&#x2F;span&gt;&lt;span&gt;();
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; response = HttpResponse::Ok();
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for&lt;&#x2F;span&gt;&lt;span&gt; cookie in cookie_header_value {
+&lt;&#x2F;span&gt;&lt;span&gt;        response.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;append_header&lt;&#x2F;span&gt;&lt;span&gt;((&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;SET_COOKIE&lt;&#x2F;span&gt;&lt;span&gt;, cookie));
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    response.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;body&lt;&#x2F;span&gt;&lt;span&gt;(format!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;added - &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{:?}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, data))
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Helper function 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;process_header&lt;&#x2F;span&gt;&lt;span&gt;(
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;req&lt;&#x2F;span&gt;&lt;span&gt;: &amp;amp;HttpRequest,
+&lt;&#x2F;span&gt;&lt;span&gt;) -&amp;gt; RequestCookies{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; processor =
+&lt;&#x2F;span&gt;&lt;span&gt;        req.app_data::&amp;lt;web::Data&amp;lt;Processor&amp;gt;&amp;gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;expect&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Processor not found in app data&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; cookie_header = req
+&lt;&#x2F;span&gt;&lt;span&gt;        .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;headers&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;        .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;(actix_web::http::header::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;COOKIE&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;        .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;and_then&lt;&#x2F;span&gt;&lt;span&gt;(|&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;header&lt;&#x2F;span&gt;&lt;span&gt;| header.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;to_str&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;ok&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;        .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;expect&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Request cookie header is missing or invalid&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    RequestCookies::parse_header(cookie_header, &amp;amp;processor).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;expect&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Failed to process header values&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;)
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;That&#x27;s all fine and dandy, but it clutters our request handlers. You&#x27;d probably want to abstract away the cookie logic and leverage the type system to reduce potential errors&lt;&#x2F;p&gt;
+&lt;p&gt;Let&#x27;s try to implement typed cookies and cookie header extraction logic as a separate component. You can go about this in many different ways
+but I will show you something close to what I wrote prior to building Cookiebox.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;std::future::{ready, Ready};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;std::marker::PhantomData;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;actix_web::dev::Payload;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;actix_web::http::header::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;SET_COOKIE&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;actix_web::{FromRequest, HttpResponseBuilder};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;biscotti::time::Duration;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;biscotti::{Processor, RemovalCookie, RequestCookie, RequestCookies, ResponseCookie, ResponseCookies};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;actix_web::{get, HttpRequest, HttpResponse, web,web::Data};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;serde::Deserialize;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;serde_json::json;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F; 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;         Typed Cookies
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; A type to deserialize data into
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(Deserialize, Debug)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;Person {
+&lt;&#x2F;span&gt;&lt;span&gt;   &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;name&lt;&#x2F;span&gt;&lt;span&gt;: String
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; A cookie type state for managing cookie states
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;TypedCookie&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;&amp;#39;c&lt;&#x2F;span&gt;&lt;span&gt;, CookieType&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;cookie&lt;&#x2F;span&gt;&lt;span&gt;: Option&amp;lt;RequestCookie&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;&amp;#39;c&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;cookie_type&lt;&#x2F;span&gt;&lt;span&gt;: PhantomData&amp;lt;CookieType&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Custom cookie type
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;CookieA;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Define constant values for our custom cookie type to ensure consistency when working on cookieA
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;impl &lt;&#x2F;span&gt;&lt;span&gt;CookieA {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;COOKIE_NAME&lt;&#x2F;span&gt;&lt;span&gt;: &amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;&amp;#39;static str &lt;&#x2F;span&gt;&lt;span&gt;= &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;__cookie-a&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;impl&lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;&amp;#39;c&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt; TypedCookie&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;&amp;#39;c&lt;&#x2F;span&gt;&lt;span&gt;, CookieA&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;get_person&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;) -&amp;gt; Result&amp;lt;Person, String&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Deserialize cookie data 
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;if let &lt;&#x2F;span&gt;&lt;span&gt;Some(cookie) = &amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.cookie {
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; cookie_data: Person = serde_json::from_str(cookie.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;value&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;                .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;expect&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Failed to deserialize cookie value&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;);
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span&gt;Ok(cookie_data);
+&lt;&#x2F;span&gt;&lt;span&gt;        }
+&lt;&#x2F;span&gt;&lt;span&gt;        Err(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;No request cookie data&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;to_string&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;    } 
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;remove_cookie&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;) -&amp;gt; RemovalCookie {
+&lt;&#x2F;span&gt;&lt;span&gt;        RemovalCookie::new(CookieA::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;COOKIE_NAME&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;add_cookie&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;name&lt;&#x2F;span&gt;&lt;span&gt;: String) -&amp;gt; ResponseCookie {
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; data = json!({
+&lt;&#x2F;span&gt;&lt;span&gt;            &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;name&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;: name
+&lt;&#x2F;span&gt;&lt;span&gt;        });
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        ResponseCookie::new(CookieA::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;COOKIE_NAME&lt;&#x2F;span&gt;&lt;span&gt;, data.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;to_string&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;set_max_age&lt;&#x2F;span&gt;&lt;span&gt;(Duration::seconds(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;60 &lt;&#x2F;span&gt;&lt;span&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;))
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;impl&lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;&amp;#39;c&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt; FromRequest &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;TypedCookie&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;&amp;#39;c&lt;&#x2F;span&gt;&lt;span&gt;, CookieA&amp;gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;type &lt;&#x2F;span&gt;&lt;span&gt;Error = actix_web::error::Error;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;type &lt;&#x2F;span&gt;&lt;span&gt;Future = Ready&amp;lt;Result&amp;lt;TypedCookie&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;&amp;#39;c&lt;&#x2F;span&gt;&lt;span&gt;, CookieA&amp;gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Self::&lt;&#x2F;span&gt;&lt;span&gt;Error&amp;gt;&amp;gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;from_request&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;req&lt;&#x2F;span&gt;&lt;span&gt;: &amp;amp;HttpRequest, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;_payload&lt;&#x2F;span&gt;&lt;span&gt;: &amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;mut&lt;&#x2F;span&gt;&lt;span&gt; Payload) -&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Self::&lt;&#x2F;span&gt;&lt;span&gt;Future {
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; cookies_request = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;process_header_pre&lt;&#x2F;span&gt;&lt;span&gt;(req);
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;if&lt;&#x2F;span&gt;&lt;span&gt; cookies_request.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;is_err&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;ready&lt;&#x2F;span&gt;&lt;span&gt;(Ok(TypedCookie {
+&lt;&#x2F;span&gt;&lt;span&gt;                    cookie: None,
+&lt;&#x2F;span&gt;&lt;span&gt;                    cookie_type: PhantomData::&amp;lt;CookieA&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;                }))
+&lt;&#x2F;span&gt;&lt;span&gt;        }
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;match&lt;&#x2F;span&gt;&lt;span&gt; cookies_request.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;(CookieA::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;COOKIE_NAME&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;            Some(cookie) =&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; A quick and dirty fix for lifetime issue here
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; cookie = RequestCookie::new(cookie.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;name&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;to_string&lt;&#x2F;span&gt;&lt;span&gt;(), cookie.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;value&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;to_string&lt;&#x2F;span&gt;&lt;span&gt;());
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;ready&lt;&#x2F;span&gt;&lt;span&gt;(Ok(TypedCookie {
+&lt;&#x2F;span&gt;&lt;span&gt;                    cookie: Some(cookie),
+&lt;&#x2F;span&gt;&lt;span&gt;                    cookie_type: PhantomData::&amp;lt;CookieA&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;                }))
+&lt;&#x2F;span&gt;&lt;span&gt;            },
+&lt;&#x2F;span&gt;&lt;span&gt;            None =&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;ready&lt;&#x2F;span&gt;&lt;span&gt;(Err(actix_web::error::ErrorBadRequest(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;CookieA not found&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;)))
+&lt;&#x2F;span&gt;&lt;span&gt;        }
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F; 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;         Helper Methods
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Extracts and parses header values from the request
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;process_header_pre&lt;&#x2F;span&gt;&lt;span&gt;(
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;req&lt;&#x2F;span&gt;&lt;span&gt;: &amp;amp;HttpRequest,
+&lt;&#x2F;span&gt;&lt;span&gt;) -&amp;gt; Result&amp;lt;RequestCookies, String&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; processor =
+&lt;&#x2F;span&gt;&lt;span&gt;        req.app_data::&amp;lt;web::Data&amp;lt;Processor&amp;gt;&amp;gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;expect&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Processor not found in app data&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; cookie_header = req
+&lt;&#x2F;span&gt;&lt;span&gt;        .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;headers&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;        .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;(actix_web::http::header::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;COOKIE&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;        .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;and_then&lt;&#x2F;span&gt;&lt;span&gt;(|&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;header&lt;&#x2F;span&gt;&lt;span&gt;| header.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;to_str&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;ok&lt;&#x2F;span&gt;&lt;span&gt;());
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;if let &lt;&#x2F;span&gt;&lt;span&gt;Some(cookie_header) = cookie_header {
+&lt;&#x2F;span&gt;&lt;span&gt;        Ok(RequestCookies::parse_header(cookie_header, &amp;amp;processor).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;expect&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Failed to process header values&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;))
+&lt;&#x2F;span&gt;&lt;span&gt;    } &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;else &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;        Err(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;No cookie header found&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;to_string&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; This transforms all cookies and sets them to the `Set-Cookie` header
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;process_header_post&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;req&lt;&#x2F;span&gt;&lt;span&gt;: HttpRequest, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;cookies&lt;&#x2F;span&gt;&lt;span&gt;: ResponseCookies, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;response&lt;&#x2F;span&gt;&lt;span&gt;: &amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;mut&lt;&#x2F;span&gt;&lt;span&gt; HttpResponseBuilder) {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Fetch the processor from app data - we need that to transform the cookies before sending it off to the caller
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; processor =
+&lt;&#x2F;span&gt;&lt;span&gt;        req.app_data::&amp;lt;web::Data&amp;lt;Processor&amp;gt;&amp;gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;expect&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Processor not found in app data&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Transform the cookies
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; cookie_header_value: Vec&amp;lt;String&amp;gt;= cookies.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;header_values&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;processor).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;collect&lt;&#x2F;span&gt;&lt;span&gt;();
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for&lt;&#x2F;span&gt;&lt;span&gt; cookie in cookie_header_value {
+&lt;&#x2F;span&gt;&lt;span&gt;        response.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;append_header&lt;&#x2F;span&gt;&lt;span&gt;((&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;SET_COOKIE&lt;&#x2F;span&gt;&lt;span&gt;, cookie));
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;This is a lot better. Our cookie logic is contained in the type state implementation of the generic state type. Let&#x27;s see how this cleans up our request handlers.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F; 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;        Request Handler
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Look ma! My request handlers are a lot cleaner now
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; FromRequest did most of the heavy lifting here
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;get_cookie&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;)]
+&lt;&#x2F;span&gt;&lt;span&gt;async &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;get_cookie&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;cookie_a&lt;&#x2F;span&gt;&lt;span&gt;: TypedCookie&amp;lt;&amp;#39;_, CookieA&amp;gt;) -&amp;gt; HttpResponse {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; person = cookie_a.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;get_person&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;map_err&lt;&#x2F;span&gt;&lt;span&gt;(|&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;e&lt;&#x2F;span&gt;&lt;span&gt;| eprint!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Failure caused by:&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;\n\n&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{e}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;));
+&lt;&#x2F;span&gt;&lt;span&gt;    HttpResponse::Ok().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;body&lt;&#x2F;span&gt;&lt;span&gt;(format!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Got - &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{:?}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, person))
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;add_cookie&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;)]
+&lt;&#x2F;span&gt;&lt;span&gt;async &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;add_cookie&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;req&lt;&#x2F;span&gt;&lt;span&gt;: HttpRequest, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;cookie_a&lt;&#x2F;span&gt;&lt;span&gt;: TypedCookie&amp;lt;&amp;#39;_, CookieA&amp;gt;) -&amp;gt; HttpResponse {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Initialize the cookie collection
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; cookies = ResponseCookies::new();
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Define the cookie and sets the attributes for it.
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; cookie_a_add = cookie_a.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;add_cookie&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Mark&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;to_string&lt;&#x2F;span&gt;&lt;span&gt;());
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    cookies.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;insert&lt;&#x2F;span&gt;&lt;span&gt;(cookie_a_add);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; response = HttpResponse::Ok();
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Transform cookies and set them to `Set-Cookie` 
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;process_header_post&lt;&#x2F;span&gt;&lt;span&gt;(req, cookies, &amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;mut&lt;&#x2F;span&gt;&lt;span&gt; response);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    response.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;body&lt;&#x2F;span&gt;&lt;span&gt;(format!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;added - Mark&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;))
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Great! We have typed cookies and reduced the amount of code in our request handlers.
+If we refactor further and implement middleware, it will declutter the code even more.
+If you notice the code for add_cookie, remove_cookie, and get_cookie can also be abstracted away.
+The main differences are the return types, serialization, and attributes.
+If you continue down this path, you’ll eventually end up with something very close to CookieBox.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;cookiebox-1&quot;&gt;Cookiebox&lt;a class=&quot;anchor&quot; aria-hidden=&quot;true&quot; href=&quot;#cookiebox-1&quot; hidden=&quot;&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;Now that we&#x27;ve seen how typed cookies are implemented with &lt;code&gt;biscotti&lt;&#x2F;code&gt;, let&#x27;s take a look at how &lt;code&gt;cookiebox&lt;&#x2F;code&gt; simplifies cookie management with minimal setup.&lt;&#x2F;p&gt;
+&lt;p&gt;Start by adding the &lt;code&gt;CookieMiddleware&lt;&#x2F;code&gt; to the &lt;code&gt;App&lt;&#x2F;code&gt; instance.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;cookiebox::{CookieMiddleware, Processor, ProcessorConfig, Key, config::{CryptoRule, CryptoAlgorithm)};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;actix_web::{App, HttpServer};
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;actix_web&lt;&#x2F;span&gt;&lt;span&gt;::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;main&lt;&#x2F;span&gt;&lt;span&gt;]
+&lt;&#x2F;span&gt;&lt;span&gt;async &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;main&lt;&#x2F;span&gt;&lt;span&gt;() -&amp;gt; std::io::Result&amp;lt;()&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Set up the processor for the middleware
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; cookie_config = ProcessorConfig::default();
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Set up the rules for encrypted cookies
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; crypto_rule = CryptoRule {
+&lt;&#x2F;span&gt;&lt;span&gt;        cookie_names: vec![&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;__cookie-a&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;to_string&lt;&#x2F;span&gt;&lt;span&gt;()],
+&lt;&#x2F;span&gt;&lt;span&gt;        algorithm: CryptoAlgorithm::Encryption,
+&lt;&#x2F;span&gt;&lt;span&gt;        key: Key::generate(),
+&lt;&#x2F;span&gt;&lt;span&gt;        fallbacks: vec![],
+&lt;&#x2F;span&gt;&lt;span&gt;    };
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    cookie_config.crypto_rules.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;push&lt;&#x2F;span&gt;&lt;span&gt;(crypto_rule);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; processor: Processor = cookie_config.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;into&lt;&#x2F;span&gt;&lt;span&gt;();
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    HttpServer::new(|| {
+&lt;&#x2F;span&gt;&lt;span&gt;        App::new()
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; The middleware handles the extraction and transformation the cookies from the request handler
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;wrap&lt;&#x2F;span&gt;&lt;span&gt;(CookieMiddleware::new(processor.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;clone&lt;&#x2F;span&gt;&lt;span&gt;()))
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;service&lt;&#x2F;span&gt;&lt;span&gt;(get_cookie)
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;service&lt;&#x2F;span&gt;&lt;span&gt;(add_cookie)
+&lt;&#x2F;span&gt;&lt;span&gt;    })
+&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;bind&lt;&#x2F;span&gt;&lt;span&gt;((&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;127.0.0.1&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;8080&lt;&#x2F;span&gt;&lt;span&gt;))?
+&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;run&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;    .await
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Now, define and configure your cookies.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;actix_web::{get, HttpMessage, HttpResponse};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;cookiebox::cookies::{Cookie, CookieName, IncomingConfig, OutgoingConfig};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;cookiebox::{Attributes, SameSite};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;cookiebox::cookiebox_macros::{cookie, FromRequest};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;serde::{Deserialize, Serialize};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;serde_json::json;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Data Types 
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(Serialize, Deserialize, Debug)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;CookieData {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;data&lt;&#x2F;span&gt;&lt;span&gt;: String,
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;Define cookies
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;cookie&lt;&#x2F;span&gt;&lt;span&gt;(name = &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;__cookie-a&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;CookieA;
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;cookie&lt;&#x2F;span&gt;&lt;span&gt;(name = &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;__cookie-b&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;CookieB;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Cookie types configuration
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Cookie A
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; This generic type parameter would give Cookie type get and get_all
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;impl &lt;&#x2F;span&gt;&lt;span&gt;IncomingConfig &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;CookieA {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;type &lt;&#x2F;span&gt;&lt;span&gt;Get = String;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Cookie B
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; This generic type parameter would give Cookie type get, get_all, insert, and remove.
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;impl &lt;&#x2F;span&gt;&lt;span&gt;IncomingConfig &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;CookieB {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;type &lt;&#x2F;span&gt;&lt;span&gt;Get = CookieData;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;impl &lt;&#x2F;span&gt;&lt;span&gt;OutgoingConfig &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;CookieB {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;type &lt;&#x2F;span&gt;&lt;span&gt;Insert = (String, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;i32&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Customize the serialization method
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;serialize&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;values&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Self::&lt;&#x2F;span&gt;&lt;span&gt;Insert) -&amp;gt; serde_json::Value {
+&lt;&#x2F;span&gt;&lt;span&gt;        json!({
+&lt;&#x2F;span&gt;&lt;span&gt;            &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;data&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;: format!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Name: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt; - Age: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, values.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;, values.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;        })
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Configure attributes for cookie
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;attributes&lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;&amp;#39;c&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;() -&amp;gt; Attributes&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;&amp;#39;c&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;        Attributes::new().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;same_site&lt;&#x2F;span&gt;&lt;span&gt;(SameSite::Lax).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;http_only&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;true&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Implement &lt;code&gt;FromRequest&lt;&#x2F;code&gt; for the assorted cookie collection via the derive macro.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(FromRequest)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;CookieCollection&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;&amp;#39;c&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;cookie_a&lt;&#x2F;span&gt;&lt;span&gt;: Cookie&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;&amp;#39;c&lt;&#x2F;span&gt;&lt;span&gt;, CookieA&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;cookie_b&lt;&#x2F;span&gt;&lt;span&gt;: Cookie&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;&amp;#39;c&lt;&#x2F;span&gt;&lt;span&gt;, CookieB&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;That&#x27;s it! You can now use the cookie collection in the request handlers like so&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Request handler from the app
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;&#x2F;add-cookie&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;)]
+&lt;&#x2F;span&gt;&lt;span&gt;async &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;add_cookie&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;cookies_collection&lt;&#x2F;span&gt;&lt;span&gt;: CookieCollection&amp;lt;&amp;#39;_&amp;gt;) -&amp;gt; HttpResponse {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Insert the cookie with the defined attributes and custom serialization method
+&lt;&#x2F;span&gt;&lt;span&gt;    cookies_collection.cookie_b.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;insert&lt;&#x2F;span&gt;&lt;span&gt;((&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Scarlet&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;to_string&lt;&#x2F;span&gt;&lt;span&gt;(), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;27&lt;&#x2F;span&gt;&lt;span&gt;));
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    HttpResponse::Ok().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;finish&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;&#x2F;get-cookie&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;)]
+&lt;&#x2F;span&gt;&lt;span&gt;async &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;get_cookie&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;cookies_collection&lt;&#x2F;span&gt;&lt;span&gt;: CookieCollection&amp;lt;&amp;#39;_&amp;gt;) -&amp;gt; HttpResponse {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; This returns a Ok(String) if found, otherwise Err(CookieBoxError)
+&lt;&#x2F;span&gt;&lt;span&gt;    cookies_collection.cookie_b.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;expect&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Unable to get cookie data&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    HttpResponse::Ok().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;finish&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;If you would like to see an example, please click &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MSalah73&#x2F;cookiebox&#x2F;tree&#x2F;master&#x2F;example&quot;&gt;here&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;a class=&quot;anchor&quot; aria-hidden=&quot;true&quot; href=&quot;#conclusion&quot; hidden=&quot;&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;Well, that&#x27;s about it. If you find &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MSalah73&#x2F;cookiebox&quot;&gt;cookiebox&lt;&#x2F;a&gt; helpful, please consider giving it a star. If you stumble upon a bug or have any suggestions,
+feel free to open an issue on GitHub. Thanks for reading!&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+</feed>

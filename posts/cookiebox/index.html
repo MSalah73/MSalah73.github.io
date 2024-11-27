@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+<head>
+    
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Cookiebox, a cookie management crate for the Actix Web framework</title>
+
+
+<meta name="keywords" content="Rust, Mohammed Salah, Zack Salah, Software Engineering, Actix Web, Security">
+
+
+
+<meta name="description" content="">
+
+
+
+
+
+<link rel="canonical" href="https:&#x2F;&#x2F;msalah73.github.io&#x2F;posts&#x2F;cookiebox&#x2F;">
+
+
+<link rel="stylesheet" href="https://msalah73.github.io/css/includes/scroll-bar.css">
+<link rel="stylesheet" href="https://msalah73.github.io/css/styles.css">
+<link rel="stylesheet" href="https://msalah73.github.io/css/override.css">
+
+
+
+
+
+
+
+<link rel="alternate" type="application/atom+xml" title="RSS" href="https://msalah73.github.io/atom.xml">
+
+
+
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+    </style>
+    
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+    
+</noscript>
+
+
+
+    
+</head>
+<body class=" dark" id="top">
+    
+    
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https:&#x2F;&#x2F;msalah73.github.io" accesskey="h" title="Zack&#x27;s Jot Downs (Alt + H)">
+                Zack&#x27;s Jot Downs
+            </a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <ul class="lang-switch">
+                    <li></li>
+                </ul>
+            </div>
+        </div>
+        
+        <ul id="menu">
+            
+            
+            
+            <li>
+                <a href="https:&#x2F;&#x2F;msalah73.github.io&#x2F;" title="Posts">
+                    <span>Posts</span>
+                    
+                </a>
+            </li>
+            
+            
+            
+            <li>
+                <a href="https:&#x2F;&#x2F;msalah73.github.io&#x2F;tags" title="Tags">
+                    <span>Tags</span>
+                    
+                </a>
+            </li>
+            
+        </ul>
+        
+    </nav>
+</header>
+
+    
+    <main class="main">
+        
+<article class="post-single">
+  <header class="post-header">
+      <div class="breadcrumbs">
+          <a href="https:&#x2F;&#x2F;msalah73.github.io">Home</a>&nbsp;»&nbsp;
+          <a href="https://msalah73.github.io/posts/">Posts</a>&nbsp;»&nbsp;
+          <a href="https:&#x2F;&#x2F;msalah73.github.io&#x2F;posts&#x2F;cookiebox&#x2F;">Cookiebox, a cookie management crate for the Actix Web framework</a>
+      </div>
+      <h1 class="post-title">Cookiebox, a cookie management crate for the Actix Web framework</h1>
+      
+      
+      <div class="post-meta">
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span title="2024-11-18 15:00:00 +0000">2024-11-18</span>&nbsp;·&nbsp;3 min&nbsp;·&nbsp;576 words&nbsp;·&nbsp;
+
+      
+      </div>
+      
+  </header>
+
+  
+  
+
+<div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner">
+            <ul>
+                
+                <li>
+                    <a href="#cookiebox" aria-label="Cookiebox">Cookiebox</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="#why-cookiebox" aria-label="Why Cookiebox">Why Cookiebox</a>
+                    
+                    <ul>
+                    
+                        <li>
+                            <a href="#biscotti" aria-label="Biscotti">Biscotti</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="#cookiebox-1" aria-label="Cookiebox">Cookiebox</a>
+                            
+                        </li>
+                    
+                    </ul>
+                    
+                </li>
+                
+                <li>
+                    <a href="#conclusion" aria-label="Conclusion">Conclusion</a>
+                    
+                </li>
+                
+            </ul>
+        </div>
+    </details>
+</div>
+
+
+  
+
+  
+  <div class="post-content">
+      <h1 id="cookiebox">Cookiebox<a class="anchor" aria-hidden="true" href="#cookiebox" hidden="">#</a>
+</h1>
+<p><a href="https://github.com/MSalah73/cookiebox">Cookiebox</a> provides a type safe and flexible approach to managing cookies in Actix web applications with minimal boilerplate.
+Here is a list of what you will get from using this crate:</p>
+<ul>
+<li>This crate uses <a href="https://github.com/LukeMathWalker/biscotti">biscotti</a> under the hood, which inherits most of its features.</li>
+<li>Offers the ability to configure settings on a per cookie basis.</li>
+<li>Enforces type definitions for deserializing cookie values upon retrieval.</li>
+<li>Allows customization of both the data type and data serialization.</li>
+<li>Provides a straightforward and type safe interface for managing cookies.</li>
+</ul>
+<p>This crate was inspired by Luca Palmieri's SessionType from his latest book <a href="https://www.zero2prod.com"><em>Zero2Prod</em></a>
+, his <a href="https://github.com/LukeMathWalker/biscotti">Biscotti</a> cookie crate, and the <a href="https://actix.rs/actix-session">Actix-session</a> crate.</p>
+<blockquote>
+<p><strong>Note</strong>: If you want to skip ahead, click <a href="https://msalah73.github.io/posts/cookiebox/#cookiebox-1">here</a> to jump to the example code, or click
+<a href="https://github.com/MSalah73/cookiebox/tree/master/examples">here</a> to view the GitHub example.</p>
+</blockquote>
+<h1 id="why-cookiebox">Why Cookiebox<a class="anchor" aria-hidden="true" href="#why-cookiebox" hidden="">#</a>
+</h1>
+<p>I'm currently working on building a backend server that deals with a lot of cookies and have decided to use Biscotti to handle them.
+Biscotti is great, but it's a lower level cookie crate. I needed something a bit more intuitive, a higher-level interface for cookie management.
+To address this, I decided to take a little segue and implement Cookiebox.</p>
+<p>In this article I’ll start by showing you how I initially handled cookies via Biscotti and how it inspired the creation of Cookiebox.
+Then I’ll walk you through an example of Cookiebox and how it simplifies cookie management.</p>
+<h2 id="biscotti">Biscotti<a class="anchor" aria-hidden="true" href="#biscotti" hidden="">#</a>
+</h2>
+<p>Let’s start with the basic setup for Biscotti.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">use </span><span>biscotti::config::{CryptoRule, CryptoAlgorithm};
+</span><span style="color:#b48ead;">use </span><span>biscotti::{Key, Processor, ProcessorConfig};
+</span><span style="color:#b48ead;">use </span><span>actix_web::{App, HttpServer};
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">actix_web</span><span>::</span><span style="color:#bf616a;">main</span><span>]
+</span><span>async </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">main</span><span>() -&gt; std::io::Result&lt;()&gt; {
+</span><span>    </span><span style="color:#65737e;">// Set up the processor for the middleware
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> cookie_config = ProcessorConfig::default();
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// Set up the rules for encrypted cookies
+</span><span>    </span><span style="color:#b48ead;">let</span><span> crypto_rule = CryptoRule {
+</span><span>        cookie_names: vec![&quot;</span><span style="color:#a3be8c;">__cookie-a</span><span>&quot;.</span><span style="color:#96b5b4;">to_string</span><span>()],
+</span><span>        algorithm: CryptoAlgorithm::Encryption,
+</span><span>        key: Key::generate(),
+</span><span>        fallbacks: vec![],
+</span><span>    };
+</span><span>
+</span><span>    cookie_config.crypto_rules.</span><span style="color:#96b5b4;">push</span><span>(crypto_rule);
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">let</span><span> processor: Processor = cookie_config.</span><span style="color:#96b5b4;">into</span><span>();
+</span><span>
+</span><span>    HttpServer::new(</span><span style="color:#b48ead;">move </span><span>|| {
+</span><span>        App::new()
+</span><span>            .</span><span style="color:#96b5b4;">service</span><span>(get_cookie)
+</span><span>            .</span><span style="color:#96b5b4;">service</span><span>(add_cookie)
+</span><span>            .</span><span style="color:#96b5b4;">app_data</span><span>(Data::new(processor.</span><span style="color:#96b5b4;">clone</span><span>()))
+</span><span>    })
+</span><span>    .</span><span style="color:#96b5b4;">bind</span><span>((&quot;</span><span style="color:#a3be8c;">127.0.0.1</span><span>&quot;, </span><span style="color:#d08770;">8080</span><span>))?
+</span><span>    .</span><span style="color:#96b5b4;">run</span><span>()
+</span><span>    .await
+</span><span>}
+</span></code></pre>
+<p>The simplest and most straightforward way to use Biscotti is by including the HttpRequest as a parameter.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// A type to deserialize data into
+</span><span>#[</span><span style="color:#bf616a;">derive</span><span>(Deserialize, Debug)]
+</span><span style="color:#b48ead;">pub struct </span><span>Person {
+</span><span>   </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">name</span><span>: String
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">get</span><span>(&quot;</span><span style="color:#a3be8c;">get_cookie</span><span>&quot;)]
+</span><span>async </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">get_cookie</span><span>(</span><span style="color:#bf616a;">req</span><span>: HttpRequest) -&gt; HttpResponse {
+</span><span>    </span><span style="color:#65737e;">// Extract cookies from the cookie header
+</span><span>    </span><span style="color:#b48ead;">let</span><span> cookie_collection = </span><span style="color:#96b5b4;">process_header</span><span>(&amp;req);
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">let</span><span> cookie = cookie_collection
+</span><span>        </span><span style="color:#65737e;">// Using string keys could cause issues here - You may want to leverage the type system to reduce the margin of errors.
+</span><span>        .</span><span style="color:#96b5b4;">get</span><span>(&quot;</span><span style="color:#a3be8c;">__cookie-a</span><span>&quot;)
+</span><span>        .</span><span style="color:#96b5b4;">expect</span><span>(&quot;</span><span style="color:#a3be8c;">requested cookie not found in cookie collection</span><span>&quot;);
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// Deserialize cookie data and type cast it to Person
+</span><span>    </span><span style="color:#b48ead;">let</span><span> cookie_data: Person = serde_json::from_str(cookie.</span><span style="color:#96b5b4;">value</span><span>())
+</span><span>        .</span><span style="color:#96b5b4;">expect</span><span>(&quot;</span><span style="color:#a3be8c;">Failed to deserialize cookie value</span><span>&quot;);
+</span><span>
+</span><span>    HttpResponse::Ok().</span><span style="color:#96b5b4;">body</span><span>(format!(&quot;</span><span style="color:#a3be8c;">Got - </span><span style="color:#d08770;">{:?}</span><span>&quot;, cookie_data))
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">get</span><span>(&quot;</span><span style="color:#a3be8c;">add_cookie</span><span>&quot;)]
+</span><span>async </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">add_cookie</span><span>(</span><span style="color:#bf616a;">req</span><span>: HttpRequest) -&gt; HttpResponse {
+</span><span>    </span><span style="color:#65737e;">// Initialize the cookie collection
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> cookies = ResponseCookies::new();
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// Fetch the processor from app data
+</span><span>    </span><span style="color:#b48ead;">let</span><span> processor =
+</span><span>        req.app_data::&lt;web::Data&lt;Processor&gt;&gt;()
+</span><span>            .</span><span style="color:#96b5b4;">expect</span><span>(&quot;</span><span style="color:#a3be8c;">Processor not found in app data</span><span>&quot;);
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// Serialize data and insert it in cookie_a_add
+</span><span>    </span><span style="color:#b48ead;">let</span><span> data = json!({
+</span><span>        &quot;</span><span style="color:#a3be8c;">name</span><span>&quot;: &quot;</span><span style="color:#a3be8c;">Mark</span><span>&quot;,
+</span><span>    });
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// Define the cookie and sets the attributes for it.
+</span><span>    </span><span style="color:#b48ead;">let</span><span> cookie_a_add = ResponseCookie::new(&quot;</span><span style="color:#a3be8c;">__cookie-a</span><span>&quot;, data.</span><span style="color:#96b5b4;">to_string</span><span>()).</span><span style="color:#96b5b4;">set_path</span><span>(&quot;</span><span style="color:#a3be8c;">/</span><span>&quot;).</span><span style="color:#96b5b4;">set_domain</span><span>(&quot;</span><span style="color:#a3be8c;">127.0.0.1</span><span>&quot;);
+</span><span>    </span><span style="color:#65737e;">// Create a removal cookie
+</span><span>    </span><span style="color:#b48ead;">let</span><span> cookie_a_remove = RemovalCookie::new(&quot;</span><span style="color:#a3be8c;">__cookie-a</span><span>&quot;);
+</span><span>
+</span><span>    cookies.</span><span style="color:#96b5b4;">insert</span><span>(cookie_a_add);
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// This does not remove &#39;cookie_a_add&#39; because biscotti treats `cookie_a_remove` differently.
+</span><span>    </span><span style="color:#65737e;">// It looks for a cookie named __cookie-a without the path or domain which is not the same as the one with path and domain
+</span><span>    </span><span style="color:#65737e;">// Another area where it could cause issues if not handled correctly.
+</span><span>    cookies.</span><span style="color:#96b5b4;">insert</span><span>(cookie_a_remove);
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// Transform the cookies
+</span><span>    </span><span style="color:#b48ead;">let</span><span> cookie_header_value: Vec&lt;String&gt;= cookies.</span><span style="color:#96b5b4;">header_values</span><span>(&amp;processor).</span><span style="color:#96b5b4;">collect</span><span>();
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> response = HttpResponse::Ok();
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">for</span><span> cookie in cookie_header_value {
+</span><span>        response.</span><span style="color:#96b5b4;">append_header</span><span>((</span><span style="color:#d08770;">SET_COOKIE</span><span>, cookie));
+</span><span>    }
+</span><span>
+</span><span>    response.</span><span style="color:#96b5b4;">body</span><span>(format!(&quot;</span><span style="color:#a3be8c;">added - </span><span style="color:#d08770;">{:?}</span><span>&quot;, data))
+</span><span>}
+</span><span style="color:#65737e;">// Helper function 
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">process_header</span><span>(
+</span><span>    </span><span style="color:#bf616a;">req</span><span>: &amp;HttpRequest,
+</span><span>) -&gt; RequestCookies{
+</span><span>    </span><span style="color:#b48ead;">let</span><span> processor =
+</span><span>        req.app_data::&lt;web::Data&lt;Processor&gt;&gt;()
+</span><span>            .</span><span style="color:#96b5b4;">expect</span><span>(&quot;</span><span style="color:#a3be8c;">Processor not found in app data</span><span>&quot;);
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">let</span><span> cookie_header = req
+</span><span>        .</span><span style="color:#96b5b4;">headers</span><span>()
+</span><span>        .</span><span style="color:#96b5b4;">get</span><span>(actix_web::http::header::</span><span style="color:#d08770;">COOKIE</span><span>)
+</span><span>        .</span><span style="color:#96b5b4;">and_then</span><span>(|</span><span style="color:#bf616a;">header</span><span>| header.</span><span style="color:#96b5b4;">to_str</span><span>().</span><span style="color:#96b5b4;">ok</span><span>())
+</span><span>        .</span><span style="color:#96b5b4;">expect</span><span>(&quot;</span><span style="color:#a3be8c;">Request cookie header is missing or invalid</span><span>&quot;);
+</span><span>
+</span><span>    RequestCookies::parse_header(cookie_header, &amp;processor).</span><span style="color:#96b5b4;">expect</span><span>(&quot;</span><span style="color:#a3be8c;">Failed to process header values</span><span>&quot;)
+</span><span>}
+</span></code></pre>
+<p>That's all fine and dandy, but it clutters our request handlers. You'd probably want to abstract away the cookie logic and leverage the type system to reduce potential errors</p>
+<p>Let's try to implement typed cookies and cookie header extraction logic as a separate component. You can go about this in many different ways
+but I will show you something close to what I wrote prior to building Cookiebox.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">use </span><span>std::future::{ready, Ready};
+</span><span style="color:#b48ead;">use </span><span>std::marker::PhantomData;
+</span><span style="color:#b48ead;">use </span><span>actix_web::dev::Payload;
+</span><span style="color:#b48ead;">use </span><span>actix_web::http::header::</span><span style="color:#d08770;">SET_COOKIE</span><span>;
+</span><span style="color:#b48ead;">use </span><span>actix_web::{FromRequest, HttpResponseBuilder};
+</span><span style="color:#b48ead;">use </span><span>biscotti::time::Duration;
+</span><span style="color:#b48ead;">use </span><span>biscotti::{Processor, RemovalCookie, RequestCookie, RequestCookies, ResponseCookie, ResponseCookies};
+</span><span style="color:#b48ead;">use </span><span>actix_web::{get, HttpRequest, HttpResponse, web,web::Data};
+</span><span style="color:#b48ead;">use </span><span>serde::Deserialize;
+</span><span style="color:#b48ead;">use </span><span>serde_json::json;
+</span><span>
+</span><span style="color:#65737e;">///////////////////////////////// 
+</span><span style="color:#65737e;">//         Typed Cookies
+</span><span style="color:#65737e;">/////////////////////////////////
+</span><span>
+</span><span style="color:#65737e;">// A type to deserialize data into
+</span><span>#[</span><span style="color:#bf616a;">derive</span><span>(Deserialize, Debug)]
+</span><span style="color:#b48ead;">pub struct </span><span>Person {
+</span><span>   </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">name</span><span>: String
+</span><span>}
+</span><span>
+</span><span style="color:#65737e;">// A cookie type state for managing cookie states
+</span><span style="color:#b48ead;">pub struct </span><span>TypedCookie&lt;</span><span style="color:#b48ead;">&#39;c</span><span>, CookieType&gt; {
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">cookie</span><span>: Option&lt;RequestCookie&lt;</span><span style="color:#b48ead;">&#39;c</span><span>&gt;&gt;,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">cookie_type</span><span>: PhantomData&lt;CookieType&gt;,
+</span><span>}
+</span><span>
+</span><span style="color:#65737e;">// Custom cookie type
+</span><span style="color:#b48ead;">pub struct </span><span>CookieA;
+</span><span>
+</span><span style="color:#65737e;">// Define constant values for our custom cookie type to ensure consistency when working on cookieA
+</span><span style="color:#b48ead;">impl </span><span>CookieA {
+</span><span>    </span><span style="color:#b48ead;">const </span><span style="color:#d08770;">COOKIE_NAME</span><span>: &amp;</span><span style="color:#b48ead;">&#39;static str </span><span>= &quot;</span><span style="color:#a3be8c;">__cookie-a</span><span>&quot;;
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">impl</span><span>&lt;</span><span style="color:#b48ead;">&#39;c</span><span>&gt; TypedCookie&lt;</span><span style="color:#b48ead;">&#39;c</span><span>, CookieA&gt; {
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">get_person</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; Result&lt;Person, String&gt; {
+</span><span>        </span><span style="color:#65737e;">// Deserialize cookie data 
+</span><span>        </span><span style="color:#b48ead;">if let </span><span>Some(cookie) = &amp;</span><span style="color:#bf616a;">self</span><span>.cookie {
+</span><span>            </span><span style="color:#b48ead;">let</span><span> cookie_data: Person = serde_json::from_str(cookie.</span><span style="color:#96b5b4;">value</span><span>())
+</span><span>                .</span><span style="color:#96b5b4;">expect</span><span>(&quot;</span><span style="color:#a3be8c;">Failed to deserialize cookie value</span><span>&quot;);
+</span><span>            </span><span style="color:#b48ead;">return </span><span>Ok(cookie_data);
+</span><span>        }
+</span><span>        Err(&quot;</span><span style="color:#a3be8c;">No request cookie data</span><span>&quot;.</span><span style="color:#96b5b4;">to_string</span><span>())
+</span><span>    } 
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">remove_cookie</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; RemovalCookie {
+</span><span>        RemovalCookie::new(CookieA::</span><span style="color:#d08770;">COOKIE_NAME</span><span>)
+</span><span>    }
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">add_cookie</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>, </span><span style="color:#bf616a;">name</span><span>: String) -&gt; ResponseCookie {
+</span><span>        </span><span style="color:#b48ead;">let</span><span> data = json!({
+</span><span>            &quot;</span><span style="color:#a3be8c;">name</span><span>&quot;: name
+</span><span>        });
+</span><span>
+</span><span>        ResponseCookie::new(CookieA::</span><span style="color:#d08770;">COOKIE_NAME</span><span>, data.</span><span style="color:#96b5b4;">to_string</span><span>())
+</span><span>            .</span><span style="color:#96b5b4;">set_max_age</span><span>(Duration::seconds(</span><span style="color:#d08770;">60 </span><span>* </span><span style="color:#d08770;">2</span><span>))
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">impl</span><span>&lt;</span><span style="color:#b48ead;">&#39;c</span><span>&gt; FromRequest </span><span style="color:#b48ead;">for </span><span>TypedCookie&lt;</span><span style="color:#b48ead;">&#39;c</span><span>, CookieA&gt;{
+</span><span>    </span><span style="color:#b48ead;">type </span><span>Error = actix_web::error::Error;
+</span><span>    </span><span style="color:#b48ead;">type </span><span>Future = Ready&lt;Result&lt;TypedCookie&lt;</span><span style="color:#b48ead;">&#39;c</span><span>, CookieA&gt;, </span><span style="color:#b48ead;">Self::</span><span>Error&gt;&gt;;
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">from_request</span><span>(</span><span style="color:#bf616a;">req</span><span>: &amp;HttpRequest, </span><span style="color:#bf616a;">_payload</span><span>: &amp;</span><span style="color:#b48ead;">mut</span><span> Payload) -&gt; </span><span style="color:#b48ead;">Self::</span><span>Future {
+</span><span>        </span><span style="color:#b48ead;">let</span><span> cookies_request = </span><span style="color:#96b5b4;">process_header_pre</span><span>(req);
+</span><span>        </span><span style="color:#b48ead;">if</span><span> cookies_request.</span><span style="color:#96b5b4;">is_err</span><span>() {
+</span><span>            </span><span style="color:#b48ead;">return </span><span style="color:#96b5b4;">ready</span><span>(Ok(TypedCookie {
+</span><span>                    cookie: None,
+</span><span>                    cookie_type: PhantomData::&lt;CookieA&gt;,
+</span><span>                }))
+</span><span>        }
+</span><span>        </span><span style="color:#b48ead;">match</span><span> cookies_request.</span><span style="color:#96b5b4;">unwrap</span><span>().</span><span style="color:#96b5b4;">get</span><span>(CookieA::</span><span style="color:#d08770;">COOKIE_NAME</span><span>) {
+</span><span>            Some(cookie) =&gt; {
+</span><span>            </span><span style="color:#65737e;">// A quick and dirty fix for lifetime issue here
+</span><span>            </span><span style="color:#b48ead;">let</span><span> cookie = RequestCookie::new(cookie.</span><span style="color:#96b5b4;">name</span><span>().</span><span style="color:#96b5b4;">to_string</span><span>(), cookie.</span><span style="color:#96b5b4;">value</span><span>().</span><span style="color:#96b5b4;">to_string</span><span>());
+</span><span>            </span><span style="color:#96b5b4;">ready</span><span>(Ok(TypedCookie {
+</span><span>                    cookie: Some(cookie),
+</span><span>                    cookie_type: PhantomData::&lt;CookieA&gt;,
+</span><span>                }))
+</span><span>            },
+</span><span>            None =&gt; </span><span style="color:#96b5b4;">ready</span><span>(Err(actix_web::error::ErrorBadRequest(&quot;</span><span style="color:#a3be8c;">CookieA not found</span><span>&quot;)))
+</span><span>        }
+</span><span>
+</span><span>    }
+</span><span>}
+</span><span style="color:#65737e;">///////////////////////////////// 
+</span><span style="color:#65737e;">//         Helper Methods
+</span><span style="color:#65737e;">/////////////////////////////////
+</span><span>
+</span><span style="color:#65737e;">// Extracts and parses header values from the request
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">process_header_pre</span><span>(
+</span><span>    </span><span style="color:#bf616a;">req</span><span>: &amp;HttpRequest,
+</span><span>) -&gt; Result&lt;RequestCookies, String&gt; {
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">let</span><span> processor =
+</span><span>        req.app_data::&lt;web::Data&lt;Processor&gt;&gt;()
+</span><span>            .</span><span style="color:#96b5b4;">expect</span><span>(&quot;</span><span style="color:#a3be8c;">Processor not found in app data</span><span>&quot;);
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">let</span><span> cookie_header = req
+</span><span>        .</span><span style="color:#96b5b4;">headers</span><span>()
+</span><span>        .</span><span style="color:#96b5b4;">get</span><span>(actix_web::http::header::</span><span style="color:#d08770;">COOKIE</span><span>)
+</span><span>        .</span><span style="color:#96b5b4;">and_then</span><span>(|</span><span style="color:#bf616a;">header</span><span>| header.</span><span style="color:#96b5b4;">to_str</span><span>().</span><span style="color:#96b5b4;">ok</span><span>());
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">if let </span><span>Some(cookie_header) = cookie_header {
+</span><span>        Ok(RequestCookies::parse_header(cookie_header, &amp;processor).</span><span style="color:#96b5b4;">expect</span><span>(&quot;</span><span style="color:#a3be8c;">Failed to process header values</span><span>&quot;))
+</span><span>    } </span><span style="color:#b48ead;">else </span><span>{
+</span><span>        Err(&quot;</span><span style="color:#a3be8c;">No cookie header found</span><span>&quot;.</span><span style="color:#96b5b4;">to_string</span><span>())
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#65737e;">// This transforms all cookies and sets them to the `Set-Cookie` header
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">process_header_post</span><span>(</span><span style="color:#bf616a;">req</span><span>: HttpRequest, </span><span style="color:#bf616a;">cookies</span><span>: ResponseCookies, </span><span style="color:#bf616a;">response</span><span>: &amp;</span><span style="color:#b48ead;">mut</span><span> HttpResponseBuilder) {
+</span><span>    </span><span style="color:#65737e;">// Fetch the processor from app data - we need that to transform the cookies before sending it off to the caller
+</span><span>    </span><span style="color:#b48ead;">let</span><span> processor =
+</span><span>        req.app_data::&lt;web::Data&lt;Processor&gt;&gt;()
+</span><span>            .</span><span style="color:#96b5b4;">expect</span><span>(&quot;</span><span style="color:#a3be8c;">Processor not found in app data</span><span>&quot;);
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// Transform the cookies
+</span><span>    </span><span style="color:#b48ead;">let</span><span> cookie_header_value: Vec&lt;String&gt;= cookies.</span><span style="color:#96b5b4;">header_values</span><span>(&amp;processor).</span><span style="color:#96b5b4;">collect</span><span>();
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">for</span><span> cookie in cookie_header_value {
+</span><span>        response.</span><span style="color:#96b5b4;">append_header</span><span>((</span><span style="color:#d08770;">SET_COOKIE</span><span>, cookie));
+</span><span>    }
+</span><span>}
+</span><span>
+</span></code></pre>
+<p>This is a lot better. Our cookie logic is contained in the type state implementation of the generic state type. Let's see how this cleans up our request handlers.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">///////////////////////////////// 
+</span><span style="color:#65737e;">//        Request Handler
+</span><span style="color:#65737e;">/////////////////////////////////
+</span><span>
+</span><span style="color:#65737e;">// Look ma! My request handlers are a lot cleaner now
+</span><span>
+</span><span style="color:#65737e;">// FromRequest did most of the heavy lifting here
+</span><span>#[</span><span style="color:#bf616a;">get</span><span>(&quot;</span><span style="color:#a3be8c;">get_cookie</span><span>&quot;)]
+</span><span>async </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">get_cookie</span><span>(</span><span style="color:#bf616a;">cookie_a</span><span>: TypedCookie&lt;&#39;_, CookieA&gt;) -&gt; HttpResponse {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> person = cookie_a.</span><span style="color:#96b5b4;">get_person</span><span>().</span><span style="color:#96b5b4;">map_err</span><span>(|</span><span style="color:#bf616a;">e</span><span>| eprint!(&quot;</span><span style="color:#a3be8c;">Failure caused by:</span><span style="color:#96b5b4;">\n\n</span><span style="color:#d08770;">{e}</span><span>&quot;));
+</span><span>    HttpResponse::Ok().</span><span style="color:#96b5b4;">body</span><span>(format!(&quot;</span><span style="color:#a3be8c;">Got - </span><span style="color:#d08770;">{:?}</span><span>&quot;, person))
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">get</span><span>(&quot;</span><span style="color:#a3be8c;">add_cookie</span><span>&quot;)]
+</span><span>async </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">add_cookie</span><span>(</span><span style="color:#bf616a;">req</span><span>: HttpRequest, </span><span style="color:#bf616a;">cookie_a</span><span>: TypedCookie&lt;&#39;_, CookieA&gt;) -&gt; HttpResponse {
+</span><span>    </span><span style="color:#65737e;">// Initialize the cookie collection
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> cookies = ResponseCookies::new();
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// Define the cookie and sets the attributes for it.
+</span><span>    </span><span style="color:#b48ead;">let</span><span> cookie_a_add = cookie_a.</span><span style="color:#96b5b4;">add_cookie</span><span>(&quot;</span><span style="color:#a3be8c;">Mark</span><span>&quot;.</span><span style="color:#96b5b4;">to_string</span><span>());
+</span><span>
+</span><span>    cookies.</span><span style="color:#96b5b4;">insert</span><span>(cookie_a_add);
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> response = HttpResponse::Ok();
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// Transform cookies and set them to `Set-Cookie` 
+</span><span>    </span><span style="color:#96b5b4;">process_header_post</span><span>(req, cookies, &amp;</span><span style="color:#b48ead;">mut</span><span> response);
+</span><span>
+</span><span>    response.</span><span style="color:#96b5b4;">body</span><span>(format!(&quot;</span><span style="color:#a3be8c;">added - Mark</span><span>&quot;))
+</span><span>}
+</span><span>
+</span></code></pre>
+<p>Great! We have typed cookies and reduced the amount of code in our request handlers.
+If we refactor further and implement middleware, it will declutter the code even more.
+If you notice the code for add_cookie, remove_cookie, and get_cookie can also be abstracted away.
+The main differences are the return types, serialization, and attributes.
+If you continue down this path, you’ll eventually end up with something very close to CookieBox.</p>
+<h2 id="cookiebox-1">Cookiebox<a class="anchor" aria-hidden="true" href="#cookiebox-1" hidden="">#</a>
+</h2>
+<p>Now that we've seen how typed cookies are implemented with <code>biscotti</code>, let's take a look at how <code>cookiebox</code> simplifies cookie management with minimal setup.</p>
+<p>Start by adding the <code>CookieMiddleware</code> to the <code>App</code> instance.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">use </span><span>cookiebox::{CookieMiddleware, Processor, ProcessorConfig, Key, config::{CryptoRule, CryptoAlgorithm)};
+</span><span style="color:#b48ead;">use </span><span>actix_web::{App, HttpServer};
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">actix_web</span><span>::</span><span style="color:#bf616a;">main</span><span>]
+</span><span>async </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">main</span><span>() -&gt; std::io::Result&lt;()&gt; {
+</span><span>    </span><span style="color:#65737e;">// Set up the processor for the middleware
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> cookie_config = ProcessorConfig::default();
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// Set up the rules for encrypted cookies
+</span><span>    </span><span style="color:#b48ead;">let</span><span> crypto_rule = CryptoRule {
+</span><span>        cookie_names: vec![&quot;</span><span style="color:#a3be8c;">__cookie-a</span><span>&quot;.</span><span style="color:#96b5b4;">to_string</span><span>()],
+</span><span>        algorithm: CryptoAlgorithm::Encryption,
+</span><span>        key: Key::generate(),
+</span><span>        fallbacks: vec![],
+</span><span>    };
+</span><span>
+</span><span>    cookie_config.crypto_rules.</span><span style="color:#96b5b4;">push</span><span>(crypto_rule);
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">let</span><span> processor: Processor = cookie_config.</span><span style="color:#96b5b4;">into</span><span>();
+</span><span>
+</span><span>    HttpServer::new(|| {
+</span><span>        App::new()
+</span><span>            </span><span style="color:#65737e;">// The middleware handles the extraction and transformation the cookies from the request handler
+</span><span>            .</span><span style="color:#96b5b4;">wrap</span><span>(CookieMiddleware::new(processor.</span><span style="color:#96b5b4;">clone</span><span>()))
+</span><span>            .</span><span style="color:#96b5b4;">service</span><span>(get_cookie)
+</span><span>            .</span><span style="color:#96b5b4;">service</span><span>(add_cookie)
+</span><span>    })
+</span><span>    .</span><span style="color:#96b5b4;">bind</span><span>((&quot;</span><span style="color:#a3be8c;">127.0.0.1</span><span>&quot;, </span><span style="color:#d08770;">8080</span><span>))?
+</span><span>    .</span><span style="color:#96b5b4;">run</span><span>()
+</span><span>    .await
+</span><span>}
+</span></code></pre>
+<p>Now, define and configure your cookies.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">use </span><span>actix_web::{get, HttpMessage, HttpResponse};
+</span><span style="color:#b48ead;">use </span><span>cookiebox::cookies::{Cookie, CookieName, IncomingConfig, OutgoingConfig};
+</span><span style="color:#b48ead;">use </span><span>cookiebox::{Attributes, SameSite};
+</span><span style="color:#b48ead;">use </span><span>cookiebox::cookiebox_macros::{cookie, FromRequest};
+</span><span style="color:#b48ead;">use </span><span>serde::{Deserialize, Serialize};
+</span><span style="color:#b48ead;">use </span><span>serde_json::json;
+</span><span>
+</span><span style="color:#65737e;">// Data Types 
+</span><span>#[</span><span style="color:#bf616a;">derive</span><span>(Serialize, Deserialize, Debug)]
+</span><span style="color:#b48ead;">pub struct </span><span>CookieData {
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">data</span><span>: String,
+</span><span>}
+</span><span>
+</span><span style="color:#65737e;">//Define cookies
+</span><span>#[</span><span style="color:#bf616a;">cookie</span><span>(name = &quot;</span><span style="color:#a3be8c;">__cookie-a</span><span>&quot;)]
+</span><span style="color:#b48ead;">pub struct </span><span>CookieA;
+</span><span>#[</span><span style="color:#bf616a;">cookie</span><span>(name = &quot;</span><span style="color:#a3be8c;">__cookie-b</span><span>&quot;)]
+</span><span style="color:#b48ead;">pub struct </span><span>CookieB;
+</span><span>
+</span><span style="color:#65737e;">// Cookie types configuration
+</span><span style="color:#65737e;">//
+</span><span style="color:#65737e;">// Cookie A
+</span><span style="color:#65737e;">// This generic type parameter would give Cookie type get and get_all
+</span><span style="color:#b48ead;">impl </span><span>IncomingConfig </span><span style="color:#b48ead;">for </span><span>CookieA {
+</span><span>    </span><span style="color:#b48ead;">type </span><span>Get = String;
+</span><span>}
+</span><span>
+</span><span style="color:#65737e;">// Cookie B
+</span><span style="color:#65737e;">// This generic type parameter would give Cookie type get, get_all, insert, and remove.
+</span><span style="color:#b48ead;">impl </span><span>IncomingConfig </span><span style="color:#b48ead;">for </span><span>CookieB {
+</span><span>    </span><span style="color:#b48ead;">type </span><span>Get = CookieData;
+</span><span>}
+</span><span style="color:#b48ead;">impl </span><span>OutgoingConfig </span><span style="color:#b48ead;">for </span><span>CookieB {
+</span><span>    </span><span style="color:#b48ead;">type </span><span>Insert = (String, </span><span style="color:#b48ead;">i32</span><span>);
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// Customize the serialization method
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">serialize</span><span>(</span><span style="color:#bf616a;">values</span><span>: </span><span style="color:#b48ead;">Self::</span><span>Insert) -&gt; serde_json::Value {
+</span><span>        json!({
+</span><span>            &quot;</span><span style="color:#a3be8c;">data</span><span>&quot;: format!(&quot;</span><span style="color:#a3be8c;">Name: </span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;"> - Age: </span><span style="color:#d08770;">{}</span><span>&quot;, values.</span><span style="color:#d08770;">0</span><span>, values.</span><span style="color:#d08770;">1</span><span>)
+</span><span>        })
+</span><span>    }
+</span><span>    </span><span style="color:#65737e;">// Configure attributes for cookie
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">attributes</span><span>&lt;</span><span style="color:#b48ead;">&#39;c</span><span>&gt;() -&gt; Attributes&lt;</span><span style="color:#b48ead;">&#39;c</span><span>&gt; {
+</span><span>        Attributes::new().</span><span style="color:#96b5b4;">same_site</span><span>(SameSite::Lax).</span><span style="color:#96b5b4;">http_only</span><span>(</span><span style="color:#d08770;">true</span><span>)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Implement <code>FromRequest</code> for the assorted cookie collection via the derive macro.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">derive</span><span>(FromRequest)]
+</span><span style="color:#b48ead;">pub struct </span><span>CookieCollection&lt;</span><span style="color:#b48ead;">&#39;c</span><span>&gt; {
+</span><span>    </span><span style="color:#bf616a;">cookie_a</span><span>: Cookie&lt;</span><span style="color:#b48ead;">&#39;c</span><span>, CookieA&gt;,
+</span><span>    </span><span style="color:#bf616a;">cookie_b</span><span>: Cookie&lt;</span><span style="color:#b48ead;">&#39;c</span><span>, CookieB&gt;,
+</span><span>}
+</span></code></pre>
+<p>That's it! You can now use the cookie collection in the request handlers like so</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// Request handler from the app
+</span><span>#[</span><span style="color:#bf616a;">get</span><span>(&quot;</span><span style="color:#a3be8c;">/add-cookie</span><span>&quot;)]
+</span><span>async </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">add_cookie</span><span>(</span><span style="color:#bf616a;">cookies_collection</span><span>: CookieCollection&lt;&#39;_&gt;) -&gt; HttpResponse {
+</span><span>    </span><span style="color:#65737e;">// Insert the cookie with the defined attributes and custom serialization method
+</span><span>    cookies_collection.cookie_b.</span><span style="color:#96b5b4;">insert</span><span>((&quot;</span><span style="color:#a3be8c;">Scarlet</span><span>&quot;.</span><span style="color:#96b5b4;">to_string</span><span>(), </span><span style="color:#d08770;">27</span><span>));
+</span><span>
+</span><span>    HttpResponse::Ok().</span><span style="color:#96b5b4;">finish</span><span>()
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">get</span><span>(&quot;</span><span style="color:#a3be8c;">/get-cookie</span><span>&quot;)]
+</span><span>async </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">get_cookie</span><span>(</span><span style="color:#bf616a;">cookies_collection</span><span>: CookieCollection&lt;&#39;_&gt;) -&gt; HttpResponse {
+</span><span>    </span><span style="color:#65737e;">// This returns a Ok(String) if found, otherwise Err(CookieBoxError)
+</span><span>    cookies_collection.cookie_b.</span><span style="color:#96b5b4;">get</span><span>().</span><span style="color:#96b5b4;">expect</span><span>(&quot;</span><span style="color:#a3be8c;">Unable to get cookie data</span><span>&quot;);
+</span><span>
+</span><span>    HttpResponse::Ok().</span><span style="color:#96b5b4;">finish</span><span>()
+</span><span>}
+</span></code></pre>
+<p>If you would like to see an example, please click <a href="https://github.com/MSalah73/cookiebox/tree/master/example">here</a>.</p>
+<h1 id="conclusion">Conclusion<a class="anchor" aria-hidden="true" href="#conclusion" hidden="">#</a>
+</h1>
+<p>Well, that's about it. If you find <a href="https://github.com/MSalah73/cookiebox">cookiebox</a> helpful, please consider giving it a star. If you stumble upon a bug or have any suggestions,
+feel free to open an issue on GitHub. Thanks for reading!</p>
+
+  </div>
+  
+
+  <footer class="post-footer">
+      
+      <ul class="post-tags">
+          
+          
+          <li><a href="https:&#x2F;&#x2F;msalah73.github.io&#x2F;tags&#x2F;cookies&#x2F;">cookies</a></li>
+          
+          
+          <li><a href="https:&#x2F;&#x2F;msalah73.github.io&#x2F;tags&#x2F;actix-web&#x2F;">Actix Web</a></li>
+          
+          
+          <li><a href="https:&#x2F;&#x2F;msalah73.github.io&#x2F;tags&#x2F;cookie-management-crate&#x2F;">Cookie management crate</a></li>
+          
+          
+          <li><a href="https:&#x2F;&#x2F;msalah73.github.io&#x2F;tags&#x2F;cookiebox&#x2F;">cookiebox</a></li>
+          
+      </ul>
+      
+
+    
+    
+
+
+<nav class="paginav">
+    
+    
+</nav>
+
+
+    
+    
+  </footer>
+
+</article>
+
+    </main>
+    
+    <footer class="footer">
+    
+    <span>© 2024 - Mohammed (Zack) Salah -</span>
+    
+    <span>
+        Powered by
+        <a href="https://www.getzola.org/" rel="noopener noreferrer" target="_blank">Zola</a> &
+        <a href="https://github.com/cydave/zola-theme-papermod" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+
+
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+
+
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+
+
+
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerText = 'copy';
+        function copyingDone() {
+            copybutton.innerText = 'copied!';
+            setTimeout(() => {
+                copybutton.innerText = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                var content = codeblock.textContent;
+                if(codeblock.firstChild.tagName == 'TABLE') {
+                    content = Array(...codeblock.firstChild.getElementsByTagName('span')).map((span) => { return span.textContent; }).join('');
+                }
+                navigator.clipboard.writeText(content);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            // td containing LineNos
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            // table containing LineNos and code
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            // code blocks not having highlight as parent class
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+
+
+
+    
+</body>
+</html>

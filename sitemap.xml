@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://msalah73.github.io/</loc>
+    </url>
+    <url>
+        <loc>https://msalah73.github.io/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://msalah73.github.io/posts/</loc>
+    </url>
+    <url>
+        <loc>https://msalah73.github.io/posts/cookiebox/</loc>
+        <lastmod>2024-11-18T15:00:00Z</lastmod>
+    </url>
+    <url>
+        <loc>https://msalah73.github.io/posts/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://msalah73.github.io/tags/</loc>
+    </url>
+    <url>
+        <loc>https://msalah73.github.io/tags/actix-web/</loc>
+    </url>
+    <url>
+        <loc>https://msalah73.github.io/tags/cookie-management-crate/</loc>
+    </url>
+    <url>
+        <loc>https://msalah73.github.io/tags/cookiebox/</loc>
+    </url>
+    <url>
+        <loc>https://msalah73.github.io/tags/cookies/</loc>
+    </url>
+</urlset>
